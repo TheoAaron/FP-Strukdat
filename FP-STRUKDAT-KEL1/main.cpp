@@ -253,23 +253,25 @@ int main() {
             } while(menu != 8);
 
             // Input preferensi user
-            double wDist, wTime, wCost;
+            int prefMenu = 0;
             while (true) {
-                cout << "\nMasukkan preferensi anda (total harus 1.0):\n";
-                cout << "Bobot jarak   (0-1): "; cin >> wDist;
-                cout << "Bobot waktu   (0-1): "; cin >> wTime;
-                cout << "Bobot biaya   (0-1): "; cin >> wCost;
-                if (cin.fail() || wDist < 0 || wDist > 1 || wTime < 0 || wTime > 1 || wCost < 0 || wCost > 1) {
-                    cout << "Input tidak valid! Masukkan angka antara 0 dan 1.\n";
+                cout << "\nPilih preferensi utama pencarian rute:\n";
+                cout << "1. Jarak terpendek\n";
+                cout << "2. Waktu tercepat\n";
+                cout << "3. Biaya termurah\n";
+                cout << "Pilihan (1/2/3): ";
+                cin >> prefMenu;
+                if (prefMenu < 1 || prefMenu > 3 || cin.fail()) {
+                    cout << "Input tidak valid! Pilih 1, 2, atau 3.\n";
                     cin.clear(); cin.ignore(1000, '\n');
-                    continue;
-                }
-                if (abs(wDist + wTime + wCost - 1.0) > 1e-6) {
-                    cout << "Total bobot harus 1.0! Ulangi input.\n";
                     continue;
                 }
                 break;
             }
+            double wDist = 0, wTime = 0, wCost = 0;
+            if (prefMenu == 1) wDist = 1.0;
+            else if (prefMenu == 2) wTime = 1.0;
+            else if (prefMenu == 3) wCost = 1.0;
             preferences.setDistanceWeight(wDist);
             preferences.setTimeWeight(wTime);
             preferences.setCostWeight(wCost);
@@ -298,15 +300,14 @@ int main() {
             }
 
             // Find path using both algorithms
-            cout << "\nFinding optimal route...\n";
+            cout << "\nMencari rute optimal...\n";
             vector<string> dijkstraPath, aStarPath;
+            bool dijkstraSuccess = false, astarSuccess = false;
             try {
                 dijkstraPath = Dijkstra::findShortestPath(
                     graph, start, goal, preferences
                 );
-                cout << "\nDijkstra's Algorithm Result:\n";
-                printPath(graph, dijkstraPath);
-                printPathDetails(graph, dijkstraPath);
+                dijkstraSuccess = !dijkstraPath.empty();
             } catch (const exception& e) {
                 cout << "Error Dijkstra: " << e.what() << "\n";
             }
@@ -314,19 +315,32 @@ int main() {
                 aStarPath = AStar::findPath(
                     graph, start, goal
                 );
-                cout << "\nA* Algorithm Result:\n";
-                printPath(graph, aStarPath);
-                printPathDetails(graph, aStarPath);
+                astarSuccess = !aStarPath.empty();
             } catch (const exception& e) {
                 cout << "Error A*: " << e.what() << "\n";
             }
-            if (!dijkstraPath.empty() && !aStarPath.empty()) {
+            cout << "\n==============================\n";
+            cout << "Hasil Algoritma Dijkstra:\n";
+            if (dijkstraSuccess) {
+                printPath(graph, dijkstraPath);
+                printPathDetails(graph, dijkstraPath);
+            } else {
+                cout << "Tidak ada rute ditemukan oleh Dijkstra.\n";
+            }
+            cout << "\n------------------------------\n";
+            cout << "Hasil Algoritma A*:\n";
+            if (astarSuccess) {
+                printPath(graph, aStarPath);
+                printPathDetails(graph, aStarPath);
+            } else {
+                cout << "Tidak ada rute ditemukan oleh A*.\n";
+            }
+            cout << "==============================\n";
+            if (dijkstraSuccess && astarSuccess) {
                 if (dijkstraPath == aStarPath) {
-                    cout << "Both algorithms found the same optimal path!\n";
+                    cout << "Kedua algoritma menemukan rute optimal yang sama!\n";
                 } else {
-                    cout << "Algorithms found different paths. "
-                         << "This might be due to different heuristics "
-                         << "or weighting strategies.\n";
+                    cout << "Algoritma menemukan rute yang berbeda.\n";
                 }
             }
             Logger::info("Path finding completed successfully");
