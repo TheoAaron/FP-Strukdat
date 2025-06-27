@@ -6,8 +6,7 @@
 enum class Criteria {
     TIME,
     DISTANCE,
-    COST,
-    TRANSIT
+    COST
 };
 
 class MultiCriteria {

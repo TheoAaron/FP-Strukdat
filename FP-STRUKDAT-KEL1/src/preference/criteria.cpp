@@ -9,7 +9,6 @@ MultiCriteria::MultiCriteria() {
         {"distance", 0.25},
         {"time", 0.35},
         {"cost", 0.30},
-        {"transfers", 0.10}
     };
 }
 

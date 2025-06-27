@@ -15,6 +15,14 @@
 using namespace std;
 using json = nlohmann::json;
 
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
 void saveGraphToCSV(const Graph& graph, const string& locationFile, const string& routeFile) {
     ofstream loc(locationFile);
     loc << "id,x,y\n";
@@ -200,6 +208,7 @@ void savePreferenceToJSON(const Preference& preferences, const string& filename)
 }
 
 int main() {
+    clearScreen();
     try {
         Logger::init("app.log");
         Logger::info("Application started");
@@ -224,6 +233,7 @@ int main() {
             // CRUD menu
             int menu = -1;
             do {
+                clearScreen();
                 cout << "\n==== MENU CRUD GRAPH ====\n";
                 cout << "1. Tampilkan graph\n";
                 cout << "2. Tambah vertex\n";
@@ -237,24 +247,53 @@ int main() {
                 cout << "0. Keluar\n";
                 cout << "Pilih menu: ";
                 cin >> menu;
+                
+                if (cin.fail()) {
+                    cout << "Input tidak valid! Masukkan angka.\n";
+                    cin.clear(); 
+                    cin.ignore(1000, '\n');
+                    cout << "Tekan Enter untuk melanjutkan...";
+                    cin.get();
+                    continue;
+                }
+                
                 switch(menu) {
-                    case 1: showGraphMenu(graph); break;
-                    case 2: addVertexMenu(graph); break;
-                    case 3: editVertexMenu(graph); break;
-                    case 4: deleteVertexMenu(graph); break;
-                    case 5: addEdgeMenu(graph); break;
-                    case 6: editEdgeMenu(graph); break;
-                    case 7: deleteEdgeMenu(graph); break;
-                    case 8: break;
-                    case 9: visualizeGraph(graph); break;
-                    case 0: cout << "Keluar aplikasi.\n"; return 0;
-                    default: cout << "Menu tidak valid!\n";
+                    case 1: clearScreen(); showGraphMenu(graph); 
+                           cout << "\nTekan Enter untuk kembali ke menu..."; 
+                           cin.ignore(); cin.get(); break;
+                    case 2: clearScreen(); addVertexMenu(graph); 
+                           cout << "\nTekan Enter untuk kembali ke menu..."; 
+                           cin.ignore(); cin.get(); break;
+                    case 3: clearScreen(); editVertexMenu(graph); 
+                           cout << "\nTekan Enter untuk kembali ke menu..."; 
+                           cin.ignore(); cin.get(); break;
+                    case 4: clearScreen(); deleteVertexMenu(graph); 
+                           cout << "\nTekan Enter untuk kembali ke menu..."; 
+                           cin.ignore(); cin.get(); break;
+                    case 5: clearScreen(); addEdgeMenu(graph); 
+                           cout << "\nTekan Enter untuk kembali ke menu..."; 
+                           cin.ignore(); cin.get(); break;
+                    case 6: clearScreen(); editEdgeMenu(graph); 
+                           cout << "\nTekan Enter untuk kembali ke menu..."; 
+                           cin.ignore(); cin.get(); break;
+                    case 7: clearScreen(); deleteEdgeMenu(graph); 
+                           cout << "\nTekan Enter untuk kembali ke menu..."; 
+                           cin.ignore(); cin.get(); break;
+                    case 8: clearScreen(); break;
+                    case 9: clearScreen(); visualizeGraph(graph); 
+                           cout << "\nTekan Enter untuk kembali ke menu..."; 
+                           cin.ignore(); cin.get(); break;
+                    case 0: clearScreen(); cout << "Keluar aplikasi.\n"; return 0;
+                    default: cout << "Menu tidak valid! Pilih angka 0-9.\n";
+                            cout << "Tekan Enter untuk melanjutkan...";
+                            cin.ignore(); cin.get();
                 }
             } while(menu != 8);
 
             // Input preferensi user
             int prefMenu = 0;
             while (true) {
+                clearScreen();
                 cout << "\nPilih preferensi utama pencarian rute:\n";
                 cout << "1. Jarak terpendek\n";
                 cout << "2. Waktu tercepat\n";
@@ -264,6 +303,8 @@ int main() {
                 if (prefMenu < 1 || prefMenu > 3 || cin.fail()) {
                     cout << "Input tidak valid! Pilih 1, 2, atau 3.\n";
                     cin.clear(); cin.ignore(1000, '\n');
+                    cout << "Tekan Enter untuk melanjutkan...";
+                    cin.get();
                     continue;
                 }
                 break;
@@ -280,6 +321,7 @@ int main() {
             // Get user input lokasi
             string start, goal;
             while (true) {
+                clearScreen();
                 cout << "\nAvailable locations:\n";
                 for (const auto& vertex : graph.getAllVertices()) {
                     cout << vertex.getId() << " ";
@@ -290,16 +332,21 @@ int main() {
                 cin >> goal;
                 if (!graph.hasVertex(start) || !graph.hasVertex(goal)) {
                     cout << "Lokasi tidak ditemukan! Ulangi input.\n";
+                    cout << "Tekan Enter untuk melanjutkan...";
+                    cin.ignore(); cin.get();
                     continue;
                 }
                 if (start == goal) {
                     cout << "Lokasi asal dan tujuan tidak boleh sama!\n";
+                    cout << "Tekan Enter untuk melanjutkan...";
+                    cin.ignore(); cin.get();
                     continue;
                 }
                 break;
             }
 
             // Find path using both algorithms
+            clearScreen();
             cout << "\nMencari rute optimal...\n";
             vector<string> dijkstraPath, aStarPath;
             bool dijkstraSuccess = false, astarSuccess = false;
@@ -344,6 +391,8 @@ int main() {
                 }
             }
             Logger::info("Path finding completed successfully");
+            cout << "\nTekan Enter untuk kembali ke menu utama...";
+            cin.ignore(); cin.get();
             // Kembali ke menu utama
         }
 
